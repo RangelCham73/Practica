@@ -56,16 +56,21 @@ float alphaY =  0.0;
 
 // Posiciones cubos
 // Capa de arriba
-glm::vec3 UpC         = glm::vec3(0.0, 2.1, 0.0);
-glm::vec3 UpEast      = glm::vec3(0.0, 0.0, 2.1);
-glm::vec3 UpWest      = glm::vec3(0.0, 0.0, -2.1);
-glm::vec3 UpNorth     = glm::vec3(2.1, 0.0, 0.0);
-glm::vec3 UpSouth     = glm::vec3(-2.1, 0.0, 0.0);
-glm::vec3 UpNortheast = glm::vec3(2.1, 0.0, 2.1);
-glm::vec3 UpNorthwest = glm::vec3(2.1, 0.0, -2.1);
-glm::vec3 UpSoutheast = glm::vec3(-2.1, 0.0, 2.1);
-glm::vec3 UpSouthwest = glm::vec3(-2.1, 0.0, -2.1);
-glm::vec3 WestC       = glm::vec3(2.1, 0.0, 0.0);
+glm::vec3 arriba_centro           = glm::vec3(0.0, 2.1, 0.0);
+glm::vec3 arriba_izquierda        = glm::vec3(0.0, 0.0, 2.1);
+glm::vec3 arriba_derecha          = glm::vec3(0.0, 0.0, -2.1);
+glm::vec3 arriba_norte            = glm::vec3(2.1, 0.0, 0.0);
+glm::vec3 arriba_sur              = glm::vec3(-2.1, 0.0, 0.0);
+glm::vec3 arriba_norte_izquierda  = glm::vec3(2.1, 0.0, 2.1);
+glm::vec3 arriba_norte_derecha    = glm::vec3(2.1, 0.0, -2.1);
+glm::vec3 arriba_sur_izquierda    = glm::vec3(-2.1, 0.0, 2.1);
+glm::vec3 arriba_sur_derecha      = glm::vec3(-2.1, 0.0, -2.1);
+glm::vec3 derecha_centro          = glm::vec3(2.1, 0.0, 0.0);
+glm::vec3 derecha_izquierda       = glm::vec3(0.0, 0.0, 2.1);
+glm::vec3 derecha_derecha         = glm::vec3(0.0, 0.0, -2.1);
+glm::vec3 derecha_abajo_centro    = glm::vec3(0.0, -2.1, 0.0);
+glm::vec3 derecha_abajo_izquierda = glm::vec3(0.0, -2.1, 2.1);
+glm::vec3 derecha_abajo_derecha   = glm::vec3(0.0, -2.1, -2.1);
 
 // Posiciones cuadrados
 
@@ -206,7 +211,7 @@ void configScene() {
     pearl.diffuse     = glm::vec4(1.0, 0.829, 0.829, 0.922);
     pearl.specular    = glm::vec4(0.296648, 0.296648, 0.296648, 0.922);
     pearl.shininess   = 11.264;
-    // Brass
+    /*// Brass
     brass.ambient     = glm::vec4(0.329412f, 0.223529f, 0.027451f,1.0f);
     brass.diffuse     = glm::vec4(0.780392f, 0.568627f, 0.113725f, 1.0f);
     brass.specular    = glm::vec4(0.992157f, 0.941176f, 0.807843f, 1.0f);
@@ -230,7 +235,7 @@ void configScene() {
     black.ambient     = glm::vec4(0.0f, 0.0f, 0.0f, 1.0f);
     black.diffuse     = glm::vec4(0.01f, 0.01f, 0.01f, 1.0f);
     black.specular    = glm::vec4(0.50f, 0.50f, 0.50f, 1.0f);
-    black.shininess   = 32.0f;
+    black.shininess   = 32.0f;*/
 
 }
 
@@ -269,23 +274,60 @@ void renderScene() {
     glm::mat4 T;
     glm::mat4 MUp;
     glm::mat4 MWest;
+
+    // Centro de Arriba
+    Ry = glm::rotate(I, glm::radians(rotUp[1]), glm::vec3(0, 1, 0));
+    Rx = glm::rotate(I, glm::radians(rotUp[0]), glm::vec3(1, 0, 0));
+    Rz = glm::rotate(I, glm::radians(rotUp[2]), glm::vec3(0, 0, 1));
+    T = glm::translate(I, arriba_centro);
+    glm::mat4 centroArriba = T * Rx * Ry * Rz;
+    drawObject(cube, ruby, P, V, centroArriba);
+
+    // Centro Derecha
+    Ry = glm::rotate(I, glm::radians(rotWest[1]), glm::vec3(0, 1, 0));
+    Rx = glm::rotate(I, glm::radians(rotWest[0]), glm::vec3(1, 0, 0));
+    Rz = glm::rotate(I, glm::radians(rotWest[2]), glm::vec3(0, 0, 1));
+    T = glm::translate(I, derecha_centro);
+    glm::mat4 centroDerecha = T * Rx * Ry * Rz;
+    drawObject(cube, ruby, P, V, centroDerecha);
+
+    // Cubos secundarios
+    auto drawCubes = [&](glm::mat4& centro, glm::vec3& translacion, Material material) {
+        T = glm::translate(I, translacion);
+        drawObject(cube, material, P, V, centro * T);
+    };
+
+    drawCubes(centroArriba, arriba_izquierda, pearl);
+    drawCubes(centroArriba, arriba_derecha, pearl);
+    drawCubes(centroArriba, arriba_norte, pearl);
+    drawCubes(centroArriba, arriba_sur, pearl);
+    drawCubes(centroArriba, arriba_norte_izquierda, pearl);
+    drawCubes(centroArriba, arriba_norte_derecha, pearl);
+    drawCubes(centroArriba, arriba_sur_izquierda, pearl);
+    drawCubes(centroArriba, arriba_sur_derecha, pearl);
+    drawCubes(centroDerecha, derecha_izquierda, pearl);
+    drawCubes(centroDerecha, derecha_derecha, pearl);
+    drawCubes(centroDerecha, derecha_abajo_centro, pearl);
+    drawCubes(centroDerecha, derecha_abajo_izquierda, pearl);
+    drawCubes(centroDerecha, derecha_abajo_derecha, pearl);
+
     /*// Centro
         Ry = glm::rotate    (I, glm::radians(rotY), glm::vec3(0,1,0));
         Rx = glm::rotate    (I, glm::radians(rotX), glm::vec3(1,0,0));
         Rz = glm::rotate    (I, glm::radians(rotZ), glm::vec3(0,0,1));
         T = glm::translate (I, glm::vec3(2.1, 2.1, 2.1));
-        drawObject(cube, black, P, V, T * Rx * Ry);*/
+        drawObject(cube, black, P, V, T * Rx * Ry);
     // Centro derecha
     Ry    = glm::rotate    (I, glm::radians(rotWest[1]), glm::vec3(0,1,0));
     Rx    = glm::rotate    (I, glm::radians(rotWest[0]), glm::vec3(1,0,0));
     Rz    = glm::rotate    (I, glm::radians(rotWest[2]), glm::vec3(0,0,1));
-    T     = glm::translate (I, glm::vec3(0.0, 2.1, 2.1));
+    T     = glm::translate (I, derecha_centro);
     MWest = T * Rx * Ry * Rz;
     drawObject             (cube, black, P, V, MWest);
-    /*// Color verde
+    // Color verde
     T = glm::translate     (I, glm::vec3(-1.1, 2.1, 2.1));
-    drawObject             (plane, emerald, P, V, MWest * T * S);*/
-    /*// Centro izquierda
+    drawObject             (plane, emerald, P, V, MWest * T * S);
+    // Centro izquierda
         Ry = glm::rotate    (I, glm::radians(rotY), glm::vec3(0,1,0));
         Rx = glm::rotate    (I, glm::radians(rotX), glm::vec3(1,0,0));
         Rz = glm::rotate    (I, glm::radians(rotZ), glm::vec3(0,0,1));
@@ -296,18 +338,18 @@ void renderScene() {
         Rx = glm::rotate    (I, glm::radians(rotX), glm::vec3(1,0,0));
         Rz = glm::rotate    (I, glm::radians(rotZ), glm::vec3(0,0,1));
         T = glm::translate(I, glm::vec3(5.21, 2.1, 2.1));
-        drawObject(plane, tin, P, V, T * Rx * Ry * Rz * S);*/
+        drawObject(plane, tin, P, V, T * Rx * Ry * Rz * S);
     // Centro arriba
     Ry = glm::rotate    (I, glm::radians(rotUp[1]), glm::vec3(0,1,0));
     Rx = glm::rotate    (I, glm::radians(rotUp[0]), glm::vec3(1,0,0));
     Rz = glm::rotate    (I, glm::radians(rotUp[2]), glm::vec3(0,0,1));
-    T  = glm::translate(I, UpC);
+    T  = glm::translate(I, arriba_centro);
     MUp  = T * Rx * Ry * Rz;
     drawObject(cube, black, P, V, MUp);
-    /*// Color amarillo
-    T = glm::translate(I, UpC);
-    drawObject(plane, brass, P, V, MUp * T * S);*/
-    /*// Centro abajo
+    // Color amarillo
+    T = glm::translate(I, arriba_centro);
+    drawObject(plane, brass, P, V, MUp * T * S);
+    // Centro abajo
         Ry = glm::rotate    (I, glm::radians(rotY), glm::vec3(0,1,0));
         Rx = glm::rotate    (I, glm::radians(rotX), glm::vec3(1,0,0));
         Rz = glm::rotate    (I, glm::radians(rotZ), glm::vec3(0,0,1));
@@ -318,17 +360,17 @@ void renderScene() {
         Rx = glm::rotate    (I, glm::radians(rotX), glm::vec3(1,0,0));
         Rz = glm::rotate    (I, glm::radians(rotZ), glm::vec3(0,0,1));
         T = glm::translate(I, glm::vec3(2.1, -1.01, 2.1));
-        drawObject(plane, pearl, P, V, T * Rx * Ry * Rz * S);*/
+        drawObject(plane, pearl, P, V, T * Rx * Ry * Rz * S);
     // Centro abajo derecha
     T = glm::translate(I, glm::vec3(0.0, 0.0, 2.1));
     drawObject(cube, black, P, V, MWest * T);
-    /*// Color blanco
+    // Color blanco
     T = glm::translate(I, glm::vec3(0.0, -1.01, 2.1));
     drawObject(plane, pearl, P, V, MWest * T * S);
     // Color verde
     T = glm::translate(I, glm::vec3(-1.1, 0.0, 2.1));
-    drawObject(plane, emerald, P, V, MWest * T * S);*/
-    /*// Centro abajo izquierda
+    drawObject(plane, emerald, P, V, MWest * T * S);
+    // Centro abajo izquierda
         Ry = glm::rotate    (I, glm::radians(rotY), glm::vec3(0,1,0));
         Rx = glm::rotate    (I, glm::radians(rotX), glm::vec3(1,0,0));
         Rz = glm::rotate    (I, glm::radians(rotZ), glm::vec3(0,0,1));
@@ -345,26 +387,26 @@ void renderScene() {
         Rx = glm::rotate    (I, glm::radians(rotX), glm::vec3(1,0,0));
         Rz = glm::rotate    (I, glm::radians(rotZ), glm::vec3(0,0,1));
         T = glm::translate(I, glm::vec3(5.21, 0.0, 2.1));
-        drawObject(plane, tin, P, V, T * Rx * Ry * Rz * S);*/
+        drawObject(plane, tin, P, V, T * Rx * Ry * Rz * S);
     // Centro arriba derecha
-    T = glm::translate(I, UpEast);
+    T = glm::translate(I, arriba_izquierda);
     drawObject(cube, black, P, V, MUp * T);
-    /*// Color amarillo
-    T = glm::translate(I, UpEast);
+    // Color amarillo
+    T = glm::translate(I, arriba_izquierda);
     drawObject(plane, brass, P, V, MUp * T * S);
     // Color verde
     T = glm::translate(I, glm::vec3(-1.01, 4.2, 2.1));
-    drawObject(plane, emerald, P, V, MUp * T * S);*/
+    drawObject(plane, emerald, P, V, MUp * T * S);
     // Centro arriba izquierda
-    T = glm::translate(I, UpWest);
+    T = glm::translate(I, arriba_derecha);
     drawObject(cube, black, P, V, MUp * T);
-    /*// Color amarillo
-    T = glm::translate(I, UpEast);
+    // Color amarillo
+    T = glm::translate(I, arriba_izquierda);
     drawObject(plane, brass, P, V, MUp * T * S);
     // Color azul
     T = glm::translate(I, glm::vec3(5.21, 4.2, 2.1));
-    drawObject(plane, tin, P, V, MUp * T * S);*/
-    /*// Derecha centro
+    drawObject(plane, tin, P, V, MUp * T * S);
+    // Derecha centro
         Ry = glm::rotate    (I, glm::radians(rotY), glm::vec3(0,1,0));
         Rx = glm::rotate    (I, glm::radians(rotX), glm::vec3(1,0,0));
         Rz = glm::rotate    (I, glm::radians(rotZ), glm::vec3(0,0,1));
@@ -393,26 +435,26 @@ void renderScene() {
         Rx = glm::rotate    (I, glm::radians(rotX), glm::vec3(1,0,0));
         Rz = glm::rotate    (I, glm::radians(rotZ), glm::vec3(0,0,1));
         T = glm::translate(I, glm::vec3(5.21, 2.1, 0.0));
-        drawObject(plane, tin, P, V, T * Rx * Ry * Rz * S);*/
+        drawObject(plane, tin, P, V, T * Rx * Ry * Rz * S);
     // Derecha centro izquierda
-    T = glm::translate(I, glm::vec3(0.0, 2.1, 0.0));
+    T = glm::translate(I, derecha_izquierda);
     drawObject(cube, black, P, V, MWest * T * S);
-    /*// Color rojo
+    // Color rojo
     T = glm::translate(I, glm::vec3(0.0, 2.1, -1.01));
     drawObject(plane, ruby, P, V, MWest * T * S);
     // Color verde
     T = glm::translate(I, glm::vec3(-1.01, 2.1, 0.0));
-    drawObject(plane, emerald, P, V, MWest * T * S);*/
+    drawObject(plane, emerald, P, V, MWest * T * S);
     // Derecha centro arriba
-    T = glm::translate(I, UpNorth);
+    T = glm::translate(I, arriba_norte);
     drawObject(cube, black, P, V, MUp * T);
-    /*// Color rojo
+    // Color rojo
     T = glm::translate(I, glm::vec3(2.1, 4.2, -1.01));
     drawObject(plane, ruby, P, V, MUp * T * S);
     // Color amarillo
     T = glm::translate(I, glm::vec3(2.1, 5.21, 0.0));
-    drawObject(plane, brass, P, V, MUp * T * S);*/
-    /*// Derecha centro abajo
+    drawObject(plane, brass, P, V, MUp * T * S);
+    // Derecha centro abajo
         Ry = glm::rotate    (I, glm::radians(rotY), glm::vec3(0,1,0));
         Rx = glm::rotate    (I, glm::radians(rotX), glm::vec3(1,0,0));
         Rz = glm::rotate    (I, glm::radians(rotZ), glm::vec3(0,0,1));
@@ -429,11 +471,11 @@ void renderScene() {
         Rx = glm::rotate    (I, glm::radians(rotX), glm::vec3(1,0,0));
         Rz = glm::rotate    (I, glm::radians(rotZ), glm::vec3(0,0,1));
         T = glm::translate(I, glm::vec3(2.1, -1.01, 0.0));
-        drawObject(plane, pearl, P, V, T * Rx * Ry * Rz * S);*/
+        drawObject(plane, pearl, P, V, T * Rx * Ry * Rz * S);
     // Derecha arriba izquierda
-    T = glm::translate(I, UpNortheast);
+    T = glm::translate(I, arriba_norte_izquierda);
     drawObject(cube, black, P, V, MUp * T);
-    /*// Color rojo
+    // Color rojo
     T = glm::translate(I, glm::vec3(4.2, 4.2, -1.01));
     drawObject(plane, ruby, P, V, MUp * T * S);
     // Color amarillo
@@ -441,11 +483,11 @@ void renderScene() {
     drawObject(plane, brass, P, V, MUp * T * S);
     // Color azul
     T = glm::translate(I, glm::vec3(5.21, 4.2, 0.0));
-    drawObject(plane, tin, P, V, MUp * T * S);*/
+    drawObject(plane, tin, P, V, MUp * T * S);
     // Derecha arriba derecha
-    T = glm::translate(I, UpSouth);
+    T = glm::translate(I, arriba_sur);
     drawObject(cube, black, P, V, MUp * T);
-    /*// Color rojo
+    // Color rojo
     T = glm::translate(I, glm::vec3(0.0, 4.2, -1.01));
     drawObject(plane, ruby, P, V, MUp * T * S);
     // Color amarillo
@@ -453,8 +495,8 @@ void renderScene() {
     drawObject(plane, brass, P, V, MUp * T * S);
     // Color verde
     T = glm::translate(I, glm::vec3(-1.01, 4.2, 0.0));
-    drawObject(plane, emerald, P, V, MUp * T * S);*/
-    /*// Derecha abajo izquierda
+    drawObject(plane, emerald, P, V, MUp * T * S);
+    // Derecha abajo izquierda
         Ry = glm::rotate    (I, glm::radians(rotY), glm::vec3(0,1,0));
         Rx = glm::rotate    (I, glm::radians(rotX), glm::vec3(1,0,0));
         Rz = glm::rotate    (I, glm::radians(rotZ), glm::vec3(0,0,1));
@@ -477,11 +519,11 @@ void renderScene() {
         Rx = glm::rotate    (I, glm::radians(rotX), glm::vec3(1,0,0));
         Rz = glm::rotate    (I, glm::radians(rotZ), glm::vec3(0,0,1));
         T = glm::translate(I, glm::vec3(5.21, 0.0, 0.0));
-        drawObject(plane, tin, P, V, T * Rx * Ry * Rz * S);*/
+        drawObject(plane, tin, P, V, T * Rx * Ry * Rz * S);
     // Derecha abajo derecha
     T = glm::translate(I, glm::vec3(0.0, 0.0, 0.0));
     drawObject(cube, black, P, V, MWest * T);
-    /*// Color rojo
+    // Color rojo
     T = glm::translate(I, glm::vec3(0.0, 0.0, -1.01));
     drawObject(plane, ruby, P, V, MWest * T * S);
     // Color blanco
@@ -489,8 +531,8 @@ void renderScene() {
     drawObject(plane, pearl, P, V, MWest * T * S);
     // Color verde
     T = glm::translate(I, glm::vec3(-1.01, 0.0, 0.0));
-    drawObject(plane, emerald, P, V, MWest * T * S);*/
-    /*// Izquierda centro
+    drawObject(plane, emerald, P, V, MWest * T * S);
+    // Izquierda centro
         Ry = glm::rotate    (I, glm::radians(rotY), glm::vec3(0,1,0));
         Rx = glm::rotate    (I, glm::radians(rotX), glm::vec3(1,0,0));
         Rz = glm::rotate    (I, glm::radians(rotZ), glm::vec3(0,0,1));
@@ -519,26 +561,26 @@ void renderScene() {
         Rx = glm::rotate    (I, glm::radians(rotX), glm::vec3(1,0,0));
         Rz = glm::rotate    (I, glm::radians(rotZ), glm::vec3(0,0,1));
         T = glm::translate(I, glm::vec3(5.21, 2.1, 4.2));
-        drawObject(plane, tin, P, V, T * Rx * Ry * Rz * S);*/
+        drawObject(plane, tin, P, V, T * Rx * Ry * Rz * S);
     // Izquierda centro izquierda
     T = glm::translate(I, glm::vec3(0.0, 2.1, 4.2));
     drawObject(cube, black, P, V, MWest * T);
-    /*// Color naranja
+    // Color naranja
     T = glm::translate(I, glm::vec3(0.0, 2.1, 5.21));
     drawObject(plane, copper, P, V, MWest * T * S);
     // Color verde
     T = glm::translate(I, glm::vec3(-1.01, 2.1, 4.2));
-    drawObject(plane, emerald, P, V, MWest * T * S);*/
+    drawObject(plane, emerald, P, V, MWest * T * S);
     // Izquierda centro arriba
-    T = glm::translate(I, UpNorthwest);
+    T = glm::translate(I, arriba_norte_derecha);
     drawObject(cube, black, P, V, MUp * T);
-    /*// Color naranja
+    // Color naranja
     T = glm::translate(I, glm::vec3(2.1, 4.2, 5.21));
     drawObject(plane, copper, P, V, MUp * T * S);
     // Color amarillo
     T = glm::translate(I, glm::vec3(2.1, 5.21, 4.2));
-    drawObject(plane, brass, P, V, MUp * T * S);*/
-    /*// Izquierda centro abajo
+    drawObject(plane, brass, P, V, MUp * T * S);
+    // Izquierda centro abajo
         Ry = glm::rotate    (I, glm::radians(rotY), glm::vec3(0,1,0));
         Rx = glm::rotate    (I, glm::radians(rotX), glm::vec3(1,0,0));
         Rz = glm::rotate    (I, glm::radians(rotZ), glm::vec3(0,0,1));
@@ -555,11 +597,11 @@ void renderScene() {
         Rx = glm::rotate    (I, glm::radians(rotX), glm::vec3(1,0,0));
         Rz = glm::rotate    (I, glm::radians(rotZ), glm::vec3(0,0,1));
         T = glm::translate(I, glm::vec3(2.1, -1.01, 4.2));
-        drawObject(plane, pearl, P, V, T * Rx * Ry * Rz * S);*/
+        drawObject(plane, pearl, P, V, T * Rx * Ry * Rz * S);
     // Izquierda arriba izquierda
-    T = glm::translate(I, UpSouthwest);
+    T = glm::translate(I, arriba_sur_derecha);
     drawObject(cube, black, P, V, MUp * T);
-    /*// Color naranja
+    // Color naranja
     T = glm::translate(I, glm::vec3(4.2, 4.2, 5.21));
     drawObject(plane, copper, P, V, MUp * T * S);
     // Color amarillo
@@ -567,11 +609,11 @@ void renderScene() {
     drawObject(plane, brass, P, V, MUp * T * S);
     // Color azul
     T = glm::translate(I, glm::vec3(5.21, 4.2, 4.2));
-    drawObject(plane, tin, P, V, MUp * T * S);*/
+    drawObject(plane, tin, P, V, MUp * T * S);
     // Izquierda arriba derecha
-    T = glm::translate(I, UpSoutheast);
+    T = glm::translate(I, arriba_sur_izquierda);
     drawObject(cube, black, P, V, MUp * T);
-    /*// Color naranja
+    // Color naranja
     T = glm::translate(I, glm::vec3(0.0, 4.2, 5.21));
     drawObject(plane, copper, P, V, MUp * T * S);
     // Color amarillo
@@ -579,8 +621,8 @@ void renderScene() {
     drawObject(plane, brass, P, V, MUp * T * S);
     // Color verde
     T = glm::translate(I, glm::vec3(-1.01, 4.2, 4.2));
-    drawObject(plane, emerald, P, V, MUp * T * S);*/
-    /*// Izquierda abajo izquierda
+    drawObject(plane, emerald, P, V, MUp * T * S);
+    // Izquierda abajo izquierda
         Ry = glm::rotate    (I, glm::radians(rotY), glm::vec3(0,1,0));
         Rx = glm::rotate    (I, glm::radians(rotX), glm::vec3(1,0,0));
         Rz = glm::rotate    (I, glm::radians(rotZ), glm::vec3(0,0,1));
@@ -603,11 +645,11 @@ void renderScene() {
         Rx = glm::rotate    (I, glm::radians(rotX), glm::vec3(1,0,0));
         Rz = glm::rotate    (I, glm::radians(rotZ), glm::vec3(0,0,1));
         T = glm::translate(I, glm::vec3(5.21, 0.0, 4.2));
-        drawObject(plane, tin, P, V, T * Rx * Ry * Rz * S);*/
+        drawObject(plane, tin, P, V, T * Rx * Ry * Rz * S);
     // Izquierda abajo derecha
     T = glm::translate(I, glm::vec3(0.0, 0.0, 4.2));
     drawObject(cube, black, P, V, MWest * T);
-    /*// Color naranja
+    // Color naranja
     T = glm::translate(I, glm::vec3(0.0, 0.0, 5.21));
     drawObject(plane, copper, P, V, MWest * T * S);
     // Color blanco
@@ -615,8 +657,8 @@ void renderScene() {
     drawObject(plane, pearl, P, V, MWest * T * S);
     // Color verde
     T = glm::translate(I, glm::vec3(-1.01, 0.0, 4.2));
-    drawObject(plane, emerald, P, V, MWest * T * S);*/
-    /*// Plano
+    drawObject(plane, emerald, P, V, MWest * T * S);
+    // Plano
         Ry = glm::rotate   (I, glm::radians(0.0f), glm::vec3(0,1,0));
         Rx = glm::rotate   (I, glm::radians(0.0f), glm::vec3(1,0,0));
         T = glm::translate(I, glm::vec3(0.0, -5.0, 0.0));
@@ -676,8 +718,9 @@ void funKey(GLFWwindow* window, int key  , int scancode, int action, int mods) {
         case GLFW_KEY_DOWN:  rotX += 5.0f;   break;
         case GLFW_KEY_LEFT:  rotY -= 5.0f;   break;
         case GLFW_KEY_RIGHT: rotY += 5.0f;   break;
-        case GLFW_KEY_Q:     rotUp[1] += 5.0f;  break;
-        case GLFW_KEY_E:     rotUp[1] -= 5.0f;  break;
+        case GLFW_KEY_Q:     rotUp[1] += 5.0f;    break;
+        case GLFW_KEY_E:     rotWest[0] += 5.0f;  break;
+        case GLFW_KEY_W:     rotUp[1] = 0.0f;     rotWest[0] = 0.0f;  break;
         case GLFW_KEY_Z:
             if(mods==GLFW_MOD_SHIFT) desZ -= desZ > -24.0f ? 0.1f : 0.0f;
             else                     desZ += desZ <   5.0f ? 0.1f : 0.0f;
